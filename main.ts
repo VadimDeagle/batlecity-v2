@@ -93,6 +93,22 @@ controller.up.onEvent(ControllerButtonEvent.Pressed, function () {
     )
     mySprite.setVelocity(0, 0 - speedPlayer)
 })
+controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
+    timer.throttle("action", 1000, function () {
+        if (Math.abs(sprites.readDataNumber(mySprite, "dir")) > 1) {
+            projectile = sprites.createProjectileFromSprite(img`
+                5 5 5 
+                `, mySprite, speedProjectle * (sprites.readDataNumber(mySprite, "dir") / 2), 0)
+        } else {
+            projectile = sprites.createProjectileFromSprite(img`
+                5 
+                5 
+                5 
+                `, mySprite, 0, speedProjectle * (sprites.readDataNumber(mySprite, "dir") / 2))
+        }
+        projectile.setFlag(SpriteFlag.AutoDestroy, true)
+    })
+})
 controller.left.onEvent(ControllerButtonEvent.Pressed, function () {
     sprites.setDataNumber(mySprite, "dir", -2)
     mySprite.setImage(img`
@@ -255,11 +271,13 @@ controller.down.onEvent(ControllerButtonEvent.Pressed, function () {
     )
     mySprite.setVelocity(0, speedPlayer)
 })
+let projectile: Sprite = null
 let numEnemy = 0
 let mySprite: Sprite = null
 let massEnemy: Sprite[] = []
 let level = 0
 let speedPlayer = 0
+let speedProjectle = 0
 scene.setBackgroundImage(img`
     ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
     ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
@@ -506,7 +524,7 @@ scene.setBackgroundImage(img`
     ................................................................................................................................................................
     ................................................................................................................................................................
     `)
-let speedProjectle = 150
+speedProjectle = 150
 let speedEnemy = 5
 speedPlayer = 8
 level = 1
