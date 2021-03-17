@@ -522,7 +522,7 @@ mySprite = sprites.create(img`
 sprites.setDataNumber(mySprite, "dir", -1)
 tiles.placeOnRandomTile(mySprite, assets.tile`myTile0`)
 scene.cameraFollowSprite(mySprite)
-let EnemyMass: number[] = []
+let massEnemy: number[] = []
 game.onUpdate(function () {
     if (mySprite.vx == 0 && mySprite.vy == 0) {
         animation.stopAnimation(animation.AnimationTypes.All, mySprite)
