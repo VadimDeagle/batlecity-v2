@@ -1,3 +1,6 @@
+namespace SpriteKind {
+    export const ProjectleEnemy = SpriteKind.create()
+}
 function levelStart () {
     if (level == 1) {
         tiles.setTilemap(tilemap`level1`)
@@ -439,6 +442,12 @@ sprites.onOverlap(SpriteKind.Enemy, SpriteKind.Projectile, function (sprite, oth
     doCreateEnemy()
     info.player2.changeLifeBy(-1)
 })
+sprites.onOverlap(SpriteKind.Enemy, SpriteKind.Food, function (sprite, otherSprite) {
+    info.player2.changeLifeBy(1)
+    numEnemy += 1
+    doCreateEnemy()
+    otherSprite.destroy(effects.hearts, 100)
+})
 scene.onHitWall(SpriteKind.Enemy, function (sprite, location) {
     if (Math.percentChance(90)) {
         sprite.setVelocity(0 - sprite.vx, 0 - sprite.vy)
@@ -818,6 +827,10 @@ controller.down.onEvent(ControllerButtonEvent.Pressed, function () {
     )
     mySprite.setVelocity(0, speedPlayer)
 })
+sprites.onOverlap(SpriteKind.Player, SpriteKind.Food, function (sprite, otherSprite) {
+    info.player1.changeLifeBy(1)
+    otherSprite.destroy(effects.hearts, 100)
+})
 info.player2.onLifeZero(function () {
     game.splash("Поздравляем! Уровень " + convertToText(level) + " пройден!")
     level += 1
@@ -830,6 +843,8 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.Enemy, function (sprite, otherSp
     info.player1.changeLifeBy(-1)
     info.player2.changeLifeBy(-1)
 })
+let projectile2: Sprite = null
+let gunGen = 0
 let mySprite2: Sprite = null
 let projectile: Sprite = null
 let numEnemy = 0
@@ -1152,6 +1167,34 @@ game.onUpdateInterval(5000, function () {
             . . . . . . . . . . . . . . . . 
             . . . . . . . . . . . . . . . . 
             `, SpriteKind.Food)
+        mySprite2.lifespan = 30000
         tiles.placeOnRandomTile(mySprite2, assets.tile`transparency16`)
+    }
+})
+game.onUpdateInterval(1000, function () {
+    if (Math.percentChance(100)) {
+        gunGen = randint(0, massEnemy.length - 1)
+        if (massEnemy[gunGen].vx > 0) {
+            projectile2 = sprites.createProjectileFromSprite(img`
+                9 9 9 
+                `, massEnemy[gunGen], speedProjectle, 0)
+        } else if (massEnemy[gunGen].vx < 0) {
+            projectile2 = sprites.createProjectileFromSprite(img`
+                9 9 9 
+                `, massEnemy[gunGen], 0 - speedProjectle, 0)
+        } else if (massEnemy[gunGen].vy > 0) {
+            projectile2 = sprites.createProjectileFromSprite(img`
+                9 
+                9 
+                9 
+                `, massEnemy[gunGen], 0, speedProjectle)
+        } else {
+            projectile2 = sprites.createProjectileFromSprite(img`
+                9 
+                9 
+                9 
+                `, massEnemy[gunGen], 0, 0 - speedProjectle)
+        }
+        projectile2.setKind(SpriteKind.ProjectleEnemy)
     }
 })
