@@ -1,40 +1,44 @@
 function levelStart () {
     if (level == 1) {
         tiles.setTilemap(tilemap`level1`)
-    } else if (false) {
-    	
-    } else if (false) {
-    	
-    } else if (false) {
-    	
-    } else if (false) {
-    	
+    } else if (level == 2) {
+        tiles.setTilemap(tilemap`level2`)
     } else {
-    	
+        game.over(true)
     }
+    info.player2.setLife(level + 3)
     numEnemy = level + 2
     tiles.placeOnRandomTile(mySprite, assets.tile`myTile0`)
     while (massEnemy.length == 0) {
         massEnemy.pop().destroy()
     }
     while (massEnemy.length <= numEnemy) {
-        massEnemy.unshift(sprites.create(img`
-            . . . . . 8 . 9 . . . . . 
-            . . . . . 8 9 9 . . . . . 
-            . . . . . 8 9 9 . . . . . 
-            9 9 9 9 . 8 9 9 . 9 9 9 9 
-            8 8 8 8 . 8 9 9 . 8 8 8 8 
-            9 9 9 9 9 9 9 9 9 9 9 9 9 
-            8 8 8 8 9 6 6 6 9 8 8 8 8 
-            9 9 9 9 6 6 6 9 8 9 9 9 9 
-            8 8 8 8 6 6 9 8 8 8 8 8 8 
-            9 9 9 9 6 9 8 8 8 9 9 9 9 
-            8 8 8 8 9 8 8 8 9 8 8 8 8 
-            9 9 9 9 9 9 9 9 9 9 9 9 9 
-            8 8 8 8 . 8 9 9 . 8 8 8 8 
-            9 9 9 9 . . . . . 9 9 9 9 
-            `, SpriteKind.Enemy))
-        tiles.placeOnRandomTile(massEnemy[0], assets.tile`transparency16`)
+        doCreateEnemy()
+    }
+}
+function doCreateEnemy () {
+    massEnemy.unshift(sprites.create(img`
+        . . . . . 8 . 9 . . . . . 
+        . . . . . 8 9 9 . . . . . 
+        . . . . . 8 9 9 . . . . . 
+        9 9 9 9 . 8 9 9 . 9 9 9 9 
+        8 8 8 8 . 8 9 9 . 8 8 8 8 
+        9 9 9 9 9 9 9 9 9 9 9 9 9 
+        8 8 8 8 9 6 6 6 9 8 8 8 8 
+        9 9 9 9 6 6 6 9 8 9 9 9 9 
+        8 8 8 8 6 6 9 8 8 8 8 8 8 
+        9 9 9 9 6 9 8 8 8 9 9 9 9 
+        8 8 8 8 9 8 8 8 9 8 8 8 8 
+        9 9 9 9 9 9 9 9 9 9 9 9 9 
+        8 8 8 8 . 8 9 9 . 8 8 8 8 
+        9 9 9 9 . . . . . 9 9 9 9 
+        `, SpriteKind.Enemy))
+    tiles.placeOnRandomTile(massEnemy[0], assets.tile`transparency16`)
+    sprites.setDataNumber(massEnemy[0], "dir", randint(-2, 2))
+    if (Math.abs(sprites.readDataNumber(massEnemy[0], "dir")) > 1) {
+        massEnemy[0].setVelocity(speedEnemy * (sprites.readDataNumber(massEnemy[0], "dir") / 2), 0)
+    } else {
+        massEnemy[0].setVelocity(0, speedEnemy * sprites.readDataNumber(massEnemy[0], "dir"))
     }
 }
 controller.up.onEvent(ControllerButtonEvent.Pressed, function () {
@@ -104,7 +108,7 @@ controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
                 5 
                 5 
                 5 
-                `, mySprite, 0, speedProjectle * (sprites.readDataNumber(mySprite, "dir") / 2))
+                `, mySprite, 0, speedProjectle * sprites.readDataNumber(mySprite, "dir"))
         }
         projectile.setFlag(SpriteFlag.AutoDestroy, true)
     })
@@ -161,6 +165,20 @@ controller.left.onEvent(ControllerButtonEvent.Pressed, function () {
     true
     )
     mySprite.setVelocity(0 - speedPlayer, 0)
+})
+sprites.onOverlap(SpriteKind.Enemy, SpriteKind.Projectile, function (sprite, otherSprite) {
+    sprite.destroy(effects.fire, 100)
+    massEnemy.removeAt(massEnemy.indexOf(sprite))
+    otherSprite.destroy()
+    doCreateEnemy()
+    info.player2.changeLifeBy(-1)
+})
+scene.onHitWall(SpriteKind.Enemy, function (sprite, location) {
+    if (Math.percentChance(90)) {
+        sprite.setVelocity(0 - sprite.vx, 0 - sprite.vy)
+    } else {
+        sprite.setVelocity(0 - sprite.vy, 0 - sprite.vx)
+    }
 })
 controller.right.onEvent(ControllerButtonEvent.Pressed, function () {
     sprites.setDataNumber(mySprite, "dir", 2)
@@ -271,12 +289,18 @@ controller.down.onEvent(ControllerButtonEvent.Pressed, function () {
     )
     mySprite.setVelocity(0, speedPlayer)
 })
+info.player2.onLifeZero(function () {
+    game.splash("Поздравляем! Уровень " + convertToText(level) + " пройден!")
+    level += 1
+    levelStart()
+})
 let projectile: Sprite = null
 let numEnemy = 0
 let mySprite: Sprite = null
 let massEnemy: Sprite[] = []
 let level = 0
 let speedPlayer = 0
+let speedEnemy = 0
 let speedProjectle = 0
 scene.setBackgroundImage(img`
     ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
@@ -525,7 +549,7 @@ scene.setBackgroundImage(img`
     ................................................................................................................................................................
     `)
 speedProjectle = 150
-let speedEnemy = 5
+speedEnemy = 5
 speedPlayer = 8
 level = 1
 massEnemy = [sprites.create(img`
