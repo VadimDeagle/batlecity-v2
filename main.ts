@@ -12,6 +12,30 @@ function levelStart () {
     } else {
     	
     }
+    numEnemy = level + 2
+    tiles.placeOnRandomTile(mySprite, assets.tile`myTile0`)
+    while (massEnemy.length == 0) {
+        massEnemy.pop().destroy()
+    }
+    while (massEnemy.length <= numEnemy) {
+        massEnemy.unshift(sprites.create(img`
+            . . . . . 8 . 9 . . . . . 
+            . . . . . 8 9 9 . . . . . 
+            . . . . . 8 9 9 . . . . . 
+            9 9 9 9 . 8 9 9 . 9 9 9 9 
+            8 8 8 8 . 8 9 9 . 8 8 8 8 
+            9 9 9 9 9 9 9 9 9 9 9 9 9 
+            8 8 8 8 9 6 6 6 9 8 8 8 8 
+            9 9 9 9 6 6 6 9 8 9 9 9 9 
+            8 8 8 8 6 6 9 8 8 8 8 8 8 
+            9 9 9 9 6 9 8 8 8 9 9 9 9 
+            8 8 8 8 9 8 8 8 9 8 8 8 8 
+            9 9 9 9 9 9 9 9 9 9 9 9 9 
+            8 8 8 8 . 8 9 9 . 8 8 8 8 
+            9 9 9 9 . . . . . 9 9 9 9 
+            `, SpriteKind.Enemy))
+        tiles.placeOnRandomTile(massEnemy[0], assets.tile`transparency16`)
+    }
 }
 controller.up.onEvent(ControllerButtonEvent.Pressed, function () {
     sprites.setDataNumber(mySprite, "dir", -1)
@@ -231,7 +255,9 @@ controller.down.onEvent(ControllerButtonEvent.Pressed, function () {
     )
     mySprite.setVelocity(0, speedPlayer)
 })
+let numEnemy = 0
 let mySprite: Sprite = null
+let massEnemy: Sprite[] = []
 let level = 0
 let speedPlayer = 0
 scene.setBackgroundImage(img`
@@ -357,24 +383,6 @@ scene.setBackgroundImage(img`
     ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
     `)
 music.wawawawaa.play()
-game.setDialogCursor(img`
-    . . . . . . . . . . . . . . . . 
-    . . . . . . . . . . . . . . . . 
-    . . . . . . . . . . . . . . . . 
-    . . . . . . . . . . . . . . . . 
-    . . . . . . . . . . . . . . . . 
-    . . . . . . . . . . . . . . . . 
-    . . . . . . . . . . . . . . . . 
-    . . . . . . . . . . . . . . . . 
-    . . . . . . . . . . . . . . . . 
-    . . . . . . . . . . . . . . . . 
-    . . . . . . . . . . . . . . . . 
-    . . . . . . . . . . . . . . . . 
-    . . . . . . . . . . . . . . . . 
-    . . . . . . . . . . . . . . . . 
-    . . . . . . . . . . . . . . . . 
-    . . . . . . . . . . . . . . . . 
-    `)
 game.showLongText("8th:bit Edition", DialogLayout.Bottom)
 scene.setBackgroundImage(img`
     ................................................................................................................................................................
@@ -502,7 +510,24 @@ let speedProjectle = 150
 let speedEnemy = 5
 speedPlayer = 8
 level = 1
-levelStart()
+massEnemy = [sprites.create(img`
+    . . . . . . . . . . . . . . . . 
+    . . . . . . . . . . . . . . . . 
+    . . . . . . . . . . . . . . . . 
+    . . . . . . . . . . . . . . . . 
+    . . . . . . . . . . . . . . . . 
+    . . . . . . . . . . . . . . . . 
+    . . . . . . . . . . . . . . . . 
+    . . . . . . . . . . . . . . . . 
+    . . . . . . . . . . . . . . . . 
+    . . . . . . . . . . . . . . . . 
+    . . . . . . . . . . . . . . . . 
+    . . . . . . . . . . . . . . . . 
+    . . . . . . . . . . . . . . . . 
+    . . . . . . . . . . . . . . . . 
+    . . . . . . . . . . . . . . . . 
+    . . . . . . . . . . . . . . . . 
+    `, SpriteKind.Enemy)]
 mySprite = sprites.create(img`
     . . . . . 4 . 5 . . . . . 
     . . . . . 4 5 5 . . . . . 
@@ -520,9 +545,8 @@ mySprite = sprites.create(img`
     5 5 5 5 . . . . . 5 5 5 5 
     `, SpriteKind.Player)
 sprites.setDataNumber(mySprite, "dir", -1)
-tiles.placeOnRandomTile(mySprite, assets.tile`myTile0`)
 scene.cameraFollowSprite(mySprite)
-let massEnemy: number[] = []
+levelStart()
 game.onUpdate(function () {
     if (mySprite.vx == 0 && mySprite.vy == 0) {
         animation.stopAnimation(animation.AnimationTypes.All, mySprite)
