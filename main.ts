@@ -9,10 +9,10 @@ function levelStart () {
     } else {
         game.over(true)
     }
-    info.player2.setLife(level + 3)
+    info.player2.setLife(level + 10)
     numEnemy = level + 2
     tiles.placeOnRandomTile(mySprite, assets.tile`myTile0`)
-    while (massEnemy.length == 0) {
+    while (massEnemy.length != 0) {
         massEnemy.pop().destroy()
     }
     while (massEnemy.length <= numEnemy) {
@@ -365,6 +365,10 @@ controller.up.onEvent(ControllerButtonEvent.Pressed, function () {
     true
     )
     mySprite.setVelocity(0, 0 - speedPlayer)
+})
+sprites.onOverlap(SpriteKind.Player, SpriteKind.ProjectleEnemy, function (sprite, otherSprite) {
+    otherSprite.destroy(effects.fire, 100)
+    info.player1.changeLifeBy(-1)
 })
 controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
     timer.throttle("action", 1000, function () {
@@ -831,6 +835,19 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.Food, function (sprite, otherSpr
     info.player1.changeLifeBy(1)
     otherSprite.destroy(effects.hearts, 100)
 })
+scene.onHitWall(SpriteKind.Projectile, function (sprite, location) {
+    if (tiles.tileAtLocationEquals(location, assets.tile`myTile`)) {
+        tiles.setTileAt(location, assets.tile`myTile1`)
+    } else if (tiles.tileAtLocationEquals(location, assets.tile`myTile1`)) {
+        tiles.setTileAt(location, assets.tile`myTile2`)
+    } else if (tiles.tileAtLocationEquals(location, assets.tile`myTile2`)) {
+        tiles.setTileAt(location, assets.tile`transparency16`)
+        tiles.setWallAt(location, false)
+    }
+})
+info.player1.onLifeZero(function () {
+    game.over(false)
+})
 info.player2.onLifeZero(function () {
     game.splash("Уровень " + convertToText(level) + " пройден!")
     level += 1
@@ -1148,7 +1165,7 @@ game.onUpdate(function () {
     }
 })
 game.onUpdateInterval(5000, function () {
-    if (Math.percentChance(5)) {
+    if (Math.percentChance(10)) {
         mySprite2 = sprites.create(img`
             . . . . . . . . . . . . . . . . 
             . . . . . . . . . . . . . . . . 
