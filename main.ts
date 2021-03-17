@@ -832,7 +832,7 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.Food, function (sprite, otherSpr
     otherSprite.destroy(effects.hearts, 100)
 })
 info.player2.onLifeZero(function () {
-    game.splash("Поздравляем! Уровень " + convertToText(level) + " пройден!")
+    game.splash("Уровень " + convertToText(level) + " пройден!")
     level += 1
     levelStart()
 })
